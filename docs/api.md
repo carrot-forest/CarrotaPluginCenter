@@ -122,6 +122,7 @@ Plugin Center 会以如下格式提交消息信息。
 {
   "agent": "feishu",
   "group_id": "926170830",
+  "group_name": "软工交流群",
   "user_id": "1353055672",
   "user_name": "ligen131",
   "time": 1699806329,
@@ -210,6 +211,78 @@ Plugin Center 需要得到以下格式的回复，无论是否需要发送消息
 字段含义与 `/plugin/register` 中的请求参数相同。
 
 ## 消息 Message
+
+### [POST] `/message`
+
+Agent 将接收到的消息上报给 Plugin Center，并得到最终的回复信息。
+
+#### Request
+
+```json
+{
+  "agent": "feishu",
+  "group_id": "926170830",
+  "group_name": "软工交流群",
+  "user_id": "1353055672",
+  "user_name": "ligen131",
+  "time": 1699806329,
+  "message": "3 月 2 日的语文作业是什么？"
+}
+```
+
+#### Response
+
+```json
+{
+  "is_reply": true,
+  "message": [
+    "今天 18:00 需要在学习通上提交语文作业哦！别忘了！"
+  ]
+}
+```
+
+| 字段       | 类型       | 描述                                                        |
+| ---------- | ---------- | ----------------------------------------------------------- |
+| `is_reply` | `boolean`  | 是否直接原路回复消息，若为 `false`，请忽略 `message` 字段。 |
+| `message`  | `string[]` | 回复的消息数组，由于可能触发多个插件，故该值可能不止一个。  |
+
+### [POST] Carrota Parser 端接口
+
+调用该接口将原始消息解析为触发哪些插件和插件参数信息，处理前 Parser 可能需要调用 `/plugin/list` 接口获取已注册插件信息。
+
+#### Request
+
+Plugin Center 会以如下格式发送请求。
+
+```json
+{
+  "agent": "feishu",
+  "group_id": "926170830",
+  "group_name": "软工交流群",
+  "user_id": "1353055672",
+  "user_name": "ligen131",
+  "time": 1699806329,
+  "message": "3 月 2 日的语文作业是什么？"
+}
+```
+
+#### Response
+
+Plugin Center 需要得到以下格式回复。
+
+```json
+{
+  "plugin": [
+    {
+      "id": "homework",
+      "param": {
+        "date": 1677686400,
+        "subject": "语文"
+      }
+    }
+  ]
+}
+```
 
 ### [POST] `/message/send`
 
