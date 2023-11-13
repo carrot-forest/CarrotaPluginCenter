@@ -126,14 +126,24 @@ func FindPluginById(id string) (PluginInfo, error) {
 	m := GetModel()
 	defer m.Close()
 
-	var plugin PluginInfo
+	var plugin Plugin
 	result := m.tx.Model(&Plugin{}).Where("id = ?", id).First(&plugin)
 	if result.Error != nil {
 		logs.Info("Find plugin by id failed.", zap.Error(result.Error))
 		m.Abort()
-		return plugin, result.Error
+		return PluginInfo{}, result.Error
 	}
 
 	m.tx.Commit()
-	return plugin, nil
+	return PluginInfo{
+		ID:          plugin.ID,
+		Name:        plugin.Name,
+		Author:      plugin.Author,
+		Description: plugin.Description,
+		Prompt:      plugin.Prompt,
+		Params:      plugin.Params,
+		Format:      plugin.Format,
+		Example:     plugin.Example,
+		Url:         plugin.Url,
+	}, nil
 }
