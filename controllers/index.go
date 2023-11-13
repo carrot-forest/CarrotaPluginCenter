@@ -19,7 +19,7 @@ func IndexGET(c echo.Context) error {
 
 	return ResponseOK(c, link{
 		Link: documentLink{
-			Doc: "https://github.com/BingyanStudio/carrota-plugin-center-backend/blob/main/docs/api.md",
+			Doc: "https://github.com/carrot-forest/CarrotaPluginCenter/blob/main/docs/api.md",
 		},
 	})
 }
