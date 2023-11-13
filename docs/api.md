@@ -16,7 +16,9 @@
     + 3.2 [[POST] 插件端接口](#post-插件端接口)
     + 3.3 [[GET] `/plugin/list`](#get-pluginlist)
   + 4 [消息 Message](#消息-message)
-    + 4.1 [[POST] `/message/send`](#post-messagesend)
+    + 4.1 [[POST] `/message`](#post-message)
+    + 4.2 [[POST] Carrota Parser 端接口](#post-carrota-parser-端接口)
+    + 4.3 [[POST] `/message/send`](#post-messagesend)
 
 ### 约定
 
