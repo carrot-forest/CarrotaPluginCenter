@@ -292,6 +292,8 @@ Plugin Center 需要得到以下格式回复。
 
 插件直接发送消息到对应群聊/私信，用于无需引用消息的回复或定时消息。
 
+Plugin Center 向 Agent 请求的格式与此处相同。
+
 #### Request
 
 ```json
