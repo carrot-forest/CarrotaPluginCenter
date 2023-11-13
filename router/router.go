@@ -27,4 +27,11 @@ func routes(e *echo.Echo) {
 		pluginGroup.POST("/register", controllers.PluginRegisterPOST)
 		pluginGroup.GET("/list", controllers.PluginListGET)
 	}
+
+	messageGroup := e.Group(apiVersionUrl + "/message")
+	{
+		messageGroup.POST("", controllers.MessagePOST)
+		messageGroup.POST("/", controllers.MessagePOST)
+		messageGroup.POST("/send", controllers.MessageSendPOST)
+	}
 }

@@ -6,6 +6,7 @@ import (
 
 	"carrota-plugin-center/controllers/auth"
 	"carrota-plugin-center/shared/server"
+	"carrota-plugin-center/shared/service"
 
 	"github.com/gookit/config/v2"
 	"github.com/gookit/config/v2/yaml"
@@ -24,9 +25,10 @@ func ConfigLoadInit() {
 }
 
 type YamlConfiguration struct {
-	Server        server.Server      `config:"server"`
-	Database      model.Database     `config:"database"`
-	Authorization auth.Authorization `config:"Authorization"`
+	Server         server.Server                `config:"server"`
+	Database       model.Database               `config:"database"`
+	Authorization  auth.Authorization           `config:"Authorization"`
+	CarrotaService service.CarrotaServiceConfig `config:"carrota-service"`
 }
 
 func YamlConfigLoad(path string) (YamlConfiguration, error) {

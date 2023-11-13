@@ -15,3 +15,8 @@ Authorization:
     # $ echo $(dd if=/dev/urandom | base64 -w0 | dd bs=1 count=20 2>/dev/null)
     secret-key: xxxxxxxxxxxxxxxxxxxx
     refresh-secret-key: xxxxxxxxxxxxxxxxxxxx
+
+carrota-service:
+    agent-endpoint: "http://localhost:3436"
+    parser-endpoint: "http://localhost:3437"
+    wrapper-endpoint: "http://localhost:3438"

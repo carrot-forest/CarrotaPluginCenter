@@ -5,11 +5,17 @@ import (
 	"carrota-plugin-center/model"
 	"carrota-plugin-center/shared/config"
 	"carrota-plugin-center/shared/server"
+	"carrota-plugin-center/shared/service"
 )
 
 func main() {
 	config.ConfigLoadInit()
 	configuration, err := config.YamlConfigLoad("config.yml")
+	if err != nil {
+		panic(err)
+	}
+
+	err = service.CarrotaServiceConfigInit(configuration.CarrotaService)
 	if err != nil {
 		panic(err)
 	}

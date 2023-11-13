@@ -18,3 +18,5 @@ func RandSeq(leng int) string {
 	}
 	return string(b)
 }
+
+const FailedAttempts = 3

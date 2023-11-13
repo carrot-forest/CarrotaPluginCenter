@@ -147,3 +147,18 @@ func FindPluginById(id string) (PluginInfo, error) {
 		Url:         plugin.Url,
 	}, nil
 }
+
+func DeletePluginById(id string) error {
+	m := GetModel()
+	defer m.Close()
+
+	result := m.tx.Delete(&Plugin{}).Where("id = ?", id)
+	if result.Error != nil {
+		logs.Info("Delete plugin by id failed.", zap.Error(result.Error))
+		m.Abort()
+		return result.Error
+	}
+
+	m.tx.Commit()
+	return nil
+}
