@@ -224,6 +224,7 @@ Agent 将接收到的消息上报给 Plugin Center，并得到最终的回复信
 
 ```json
 {
+  "message_id": "56082374295",
   "agent": "feishu",
   "group_id": "926170830",
   "group_name": "软工交流群",
@@ -260,6 +261,7 @@ Plugin Center 会以如下格式发送请求。
 
 ```json
 {
+  "message_id": "56082374295",
   "agent": "feishu",
   "group_id": "926170830",
   "group_name": "软工交流群",
@@ -298,9 +300,10 @@ Plugin Center 向 Agent 请求的格式与此处相同。
 
 ```json
 {
+  "message_id": "56082374295",
   "agent": "feishu",
-  "is_private": false,
-  "to": "926170830",
+  "group_id": "926170830",
+  "user_id": "1353055672",
   "message": [
     "3 月 2 日记得在学习通提交语文作文哦。"
   ]
