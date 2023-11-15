@@ -118,17 +118,19 @@
 
 #### Request
 
-Plugin Center 会以如下格式提交消息信息。
+如果触发对应插件，即通过 Parser 返回的消息中包含该插件，则 Plugin Center 会以如下格式提交消息信息。
 
 ```json
 {
   "agent": "feishu",
+  "message_id": "56082374295",
   "group_id": "926170830",
   "group_name": "软工交流群",
   "user_id": "1353055672",
   "user_name": "ligen131",
   "time": 1699806329,
   "message": "3 月 2 日的语文作业是什么？",
+  "is_mention": false,
   "param": {
     "date": 1677686400,
     "subject": "语文"
@@ -224,14 +226,15 @@ Agent 将接收到的消息上报给 Plugin Center，并得到最终的回复信
 
 ```json
 {
-  "message_id": "56082374295",
   "agent": "feishu",
+  "message_id": "56082374295",
   "group_id": "926170830",
   "group_name": "软工交流群",
   "user_id": "1353055672",
   "user_name": "ligen131",
   "time": 1699806329,
-  "message": "3 月 2 日的语文作业是什么？"
+  "message": "3 月 2 日的语文作业是什么？",
+  "is_mention": false
 }
 ```
 
@@ -261,14 +264,15 @@ Plugin Center 会以如下格式发送请求。
 
 ```json
 {
-  "message_id": "56082374295",
   "agent": "feishu",
+  "message_id": "56082374295",
   "group_id": "926170830",
   "group_name": "软工交流群",
   "user_id": "1353055672",
   "user_name": "ligen131",
   "time": 1699806329,
-  "message": "3 月 2 日的语文作业是什么？"
+  "message": "3 月 2 日的语文作业是什么？",
+  "is_mention": false
 }
 ```
 
