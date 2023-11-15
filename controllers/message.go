@@ -14,15 +14,55 @@ import (
 	"go.uber.org/zap"
 )
 
-func MessagePOST(c echo.Context) error {
-	logs.Debug("GET /message")
-
-	message := model.MessageInfo{}
-	_ok, err := Bind(c, &message)
-	if !_ok {
+func sendMessage(message model.MessageSendRequest) error {
+	// 提交 Wrapper
+	wrapperRequest := model.PostWrapperRequest{
+		Agent:          message.Agent,
+		GroupID:        message.GroupID,
+		UserID:         message.UserID,
+		Time:           time.Now().Unix(),
+		OriginResponse: message.Message,
+	}
+	jsonStr, _ := json.Marshal(wrapperRequest)
+	req, _ := http.NewRequest("POST", service.WrapperEndpoint, bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil || resp.StatusCode != 200 {
+		logs.Error("POST Wrapper endpoint failed", zap.Error(err))
 		return err
 	}
 
+	wrapperResponse := model.PostWrapperResponse{}
+	err = json.NewDecoder(resp.Body).Decode(&wrapperResponse)
+	logs.Debug("wrapperResponse", zap.Any("wrapperResponse", wrapperResponse))
+	if err != nil {
+		logs.Error("Decode wrapperResponse failed", zap.Error(err))
+		return err
+	}
+	resp.Body.Close()
+
+	// 提交 Agent 发送信息
+	jsonStr, _ = json.Marshal(model.MessageSendRequest{
+		MessageID: message.MessageID,
+		Agent:     message.Agent,
+		GroupID:   message.GroupID,
+		UserID:    message.UserID,
+		Message:   wrapperResponse.Response,
+	})
+	req, _ = http.NewRequest("POST", service.AgentEndpoint, bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+	client = &http.Client{}
+	resp, err = client.Do(req)
+	if err != nil || resp.StatusCode != 200 {
+		logs.Error("POST Agent endpoint failed", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func parseAndSendMessage(message model.MessageInfo) error {
 	// 提交 Parser
 	jsonStr, _ := json.Marshal(message)
 	req, _ := http.NewRequest("POST", service.ParserEndpoint, bytes.NewBuffer(jsonStr))
@@ -30,12 +70,14 @@ func MessagePOST(c echo.Context) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil || resp.StatusCode != 200 {
-		return ResponseInternalServerError(c, "POST Parser endpoint failed", err)
+		logs.Error("POST Parser endpoint failed", zap.Error(err))
+		return err
 	}
 
 	parserResponse := model.ParserResponse{}
 	err = json.NewDecoder(resp.Body).Decode(&parserResponse)
 	if err != nil {
+		logs.Error("Decode parserResponse failed", zap.Error(err))
 		return err
 	}
 	logs.Debug("parserResponse", zap.Any("parserResponse", parserResponse))
@@ -51,12 +93,14 @@ func MessagePOST(c echo.Context) error {
 
 		pluginStr, _ := json.Marshal(model.PostPluginRequest{
 			Agent:     message.Agent,
+			MessageID: message.MessageID,
 			GroupID:   message.GroupID,
 			GroupName: message.GroupName,
 			UserID:    message.UserID,
 			UserName:  message.UserName,
 			Time:      message.Time,
 			Message:   message.Message,
+			IsMention: message.IsMention,
 			Param:     parserPlugin.Param,
 		})
 		req, _ := http.NewRequest("POST", plugin.Url, bytes.NewBuffer(pluginStr))
@@ -72,12 +116,14 @@ func MessagePOST(c echo.Context) error {
 
 		if err != nil || resp.StatusCode != 200 {
 			model.DeletePluginById(plugin.ID)
+			logs.Warn("POST Plugin endpoint failed", zap.String("name", plugin.Name), zap.String("url", plugin.Url), zap.Error(err))
 			continue
 		}
 
 		pluginResponse := model.MessageReply{}
 		err = json.NewDecoder(resp.Body).Decode(&pluginResponse)
 		if err != nil {
+			logs.Error("Decode pluginResponse failed", zap.Error(err))
 			return err
 		}
 		resp.Body.Close()
@@ -85,38 +131,33 @@ func MessagePOST(c echo.Context) error {
 		messageReply.IsReply = messageReply.IsReply || pluginResponse.IsReply
 		messageReply.Message = append(messageReply.Message, pluginResponse.Message...)
 	}
-
-	// 提交 Wrapper
-	jsonStr, _ = json.Marshal(model.PostWrapperRequest{
-		Agent:          message.Agent,
-		GroupID:        message.GroupID,
-		GroupName:      message.GroupName,
-		UserID:         message.UserID,
-		UserName:       message.UserName,
-		Time:           message.Time,
-		Message:        message.Message,
-		OriginResponse: messageReply.Message,
-	})
-	req, _ = http.NewRequest("POST", service.WrapperEndpoint, bytes.NewBuffer(jsonStr))
-	req.Header.Set("Content-Type", "application/json")
-	client = &http.Client{}
-	resp, err = client.Do(req)
-	if err != nil || resp.StatusCode != 200 {
-		return ResponseInternalServerError(c, "POST Wrapper endpoint failed", err)
+	if messageReply.IsReply || true {
+		err = sendMessage(model.MessageSendRequest{
+			MessageID: message.MessageID,
+			Agent:     message.Agent,
+			GroupID:   message.GroupID,
+			UserID:    message.UserID,
+			Message:   messageReply.Message,
+		})
+		if err != nil {
+			return err
+		}
 	}
+	return nil
+}
 
-	wrapperResponse := model.PostWrapperResponse{}
-	err = json.NewDecoder(resp.Body).Decode(&wrapperResponse)
-	logs.Debug("wrapperResponse", zap.Any("wrapperResponse", wrapperResponse))
-	if err != nil {
+func MessagePOST(c echo.Context) error {
+	logs.Debug("GET /message")
+
+	message := model.MessageInfo{}
+	_ok, err := Bind(c, &message)
+	if !_ok {
 		return err
 	}
-	resp.Body.Close()
 
-	return ResponseOK(c, model.MessageReply{
-		IsReply: messageReply.IsReply,
-		Message: wrapperResponse.Response,
-	})
+	go parseAndSendMessage(message)
+
+	return ResponseOK(c, "ok")
 }
 
 func MessageSendPOST(c echo.Context) error {
@@ -128,47 +169,9 @@ func MessageSendPOST(c echo.Context) error {
 		return err
 	}
 
-	// 提交 Wrapper
-	wrapperRequest := model.PostWrapperRequest{
-		Agent:          message.Agent,
-		Time:           time.Now().Unix(),
-		OriginResponse: message.Message,
-	}
-	if message.IsPrivate {
-		wrapperRequest.UserID = message.To
-	} else {
-		wrapperRequest.GroupID = message.To
-	}
-	jsonStr, _ := json.Marshal(wrapperRequest)
-	req, _ := http.NewRequest("POST", service.WrapperEndpoint, bytes.NewBuffer(jsonStr))
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil || resp.StatusCode != 200 {
-		return ResponseInternalServerError(c, "POST Wrapper endpoint failed", err)
-	}
-
-	wrapperResponse := model.PostWrapperResponse{}
-	err = json.NewDecoder(resp.Body).Decode(&wrapperResponse)
-	logs.Debug("wrapperResponse", zap.Any("wrapperResponse", wrapperResponse))
+	err = sendMessage(message)
 	if err != nil {
-		return err
-	}
-	resp.Body.Close()
-
-	// 提交 Agent 发送信息
-	jsonStr, _ = json.Marshal(model.MessageSendRequest{
-		Agent:     message.Agent,
-		IsPrivate: message.IsPrivate,
-		To:        message.To,
-		Message:   wrapperResponse.Response,
-	})
-	req, _ = http.NewRequest("POST", service.AgentEndpoint, bytes.NewBuffer(jsonStr))
-	req.Header.Set("Content-Type", "application/json")
-	client = &http.Client{}
-	resp, err = client.Do(req)
-	if err != nil || resp.StatusCode != 200 {
-		return ResponseInternalServerError(c, "POST Agent endpoint failed", err)
+		return ResponseInternalServerError(c, "Send message failed", err)
 	}
 
 	return ResponseOK(c, "ok")

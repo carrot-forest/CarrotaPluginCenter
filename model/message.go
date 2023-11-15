@@ -1,6 +1,7 @@
 package model
 
 type MessageInfo struct {
+	MessageID string `json:"message_id"`
 	Agent     string `json:"agent"`
 	GroupID   string `json:"group_id"`
 	GroupName string `json:"group_name"`
@@ -8,6 +9,7 @@ type MessageInfo struct {
 	UserName  string `json:"user_name"`
 	Time      int64  `json:"time"`
 	Message   string `json:"message"`
+	IsMention bool   `json:"is_mention"`
 }
 
 type MessageReply struct {
@@ -25,6 +27,7 @@ type ParserResponse struct {
 }
 
 type PostPluginRequest struct {
+	MessageID string      `json:"message_id"`
 	Agent     string      `json:"agent"`
 	GroupID   string      `json:"group_id"`
 	GroupName string      `json:"group_name"`
@@ -32,6 +35,7 @@ type PostPluginRequest struct {
 	UserName  string      `json:"user_name"`
 	Time      int64       `json:"time"`
 	Message   string      `json:"message"`
+	IsMention bool        `json:"is_mention"`
 	Param     interface{} `json:"param"`
 }
 
@@ -51,8 +55,9 @@ type PostWrapperResponse struct {
 }
 
 type MessageSendRequest struct {
+	MessageID string   `json:"message_id"`
 	Agent     string   `json:"agent"`
-	IsPrivate bool     `json:"is_private"`
-	To        string   `json:"to"`
+	GroupID   string   `json:"group_id"`
+	UserID    string   `json:"user_id"`
 	Message   []string `json:"message"`
 }
