@@ -164,7 +164,7 @@ func Register(pluginCenterEndpoint string, pluginEndpoint string) error {
 		ID:          "homework",
 		Name:        "作业查询",
 		Author:      "ligen131",
-		Description: "作业查询：传入一个参数即科目，将返回这个科目的截止日期，如果你认为需要进行截止日期查询，但语句中没有给出科目，请传入语文。传入第二个参数即语句是否有意图添加作业，或语句中是否包含“添加”，若是，请返回true。传入第三个参数即作业内容。传入第四个参数即截止时间。",
+		Description: "传入第一个参数即科目，将返回这个科目的截止 日期，如果你认为需要进行截止日期查询，但语句中没有给出科目，请传入语文。传入第二个参数即语句是否有意图添加作业 ，如果你认为需要添加作业，请返回true，否则返回false。传入第三个参数即作业内容。传入第四个参数即截止时间。",
 		Prompt:      "作业查询",
 		Params: []PluginParam{
 			{

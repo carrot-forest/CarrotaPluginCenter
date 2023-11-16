@@ -176,7 +176,7 @@ func Register(pluginCenterEndpoint string, pluginEndpoint string) error {
 		ID:          "divine",
 		Name:        "占卜",
 		Author:      "ligen131",
-		Description: "占卜：如果语句中带有占卜，请触发这个插件。这个接口不需要传入任何参数，将返回一个随机数",
+		Description: "如果语句中带有占卜，请触发这个插件。这个接口不需要传入任何参数，将返回一个随机数",
 		Prompt:      "占卜",
 		Params:      []PluginParam{},
 		Format: []string{

@@ -163,7 +163,7 @@ func Register(pluginCenterEndpoint string, pluginEndpoint string) error {
 		ID:          "repeater",
 		Name:        "复读机",
 		Author:      "ligen131",
-		Description: "复读机: 传入一个参数的内容，将返回一个参数内容。是把收到的你需要解析的语句再次输出同样的语句的插件，即便你认为它不需要被调用，但依旧要输出调用它。",
+		Description: "传入一个参数的内容，将返回一个参数内容。是把收到的你需要解析的语句再次输出同样的语句的插件，即便你认为它不需要被调用，但依旧要输出调用它。",
 		Prompt:      "复读机",
 		Params:      []PluginParam{},
 		Format:      []string{},
