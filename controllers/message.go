@@ -14,14 +14,17 @@ import (
 	"go.uber.org/zap"
 )
 
-func sendMessage(message model.MessageSendRequest) error {
+func wrapAndSendMessage(originMessage model.MessageInfo, message []string) error {
 	// 提交 Wrapper
 	wrapperRequest := model.PostWrapperRequest{
-		Agent:          message.Agent,
-		GroupID:        message.GroupID,
-		UserID:         message.UserID,
+		Agent:          originMessage.Agent,
+		GroupID:        originMessage.GroupID,
+		GroupName:      originMessage.GroupName,
+		UserID:         originMessage.UserID,
+		UserName:       originMessage.UserName,
 		Time:           time.Now().Unix(),
-		OriginResponse: message.Message,
+		Message:        originMessage.Message,
+		OriginResponse: message,
 	}
 	jsonStr, _ := json.Marshal(wrapperRequest)
 	req, _ := http.NewRequest("POST", service.WrapperEndpoint, bytes.NewBuffer(jsonStr))
@@ -44,10 +47,10 @@ func sendMessage(message model.MessageSendRequest) error {
 
 	// 提交 Agent 发送信息
 	jsonStr, _ = json.Marshal(model.MessageSendRequest{
-		MessageID: message.MessageID,
-		Agent:     message.Agent,
-		GroupID:   message.GroupID,
-		UserID:    message.UserID,
+		Agent:     originMessage.Agent,
+		MessageID: originMessage.MessageID,
+		GroupID:   originMessage.GroupID,
+		UserID:    originMessage.UserID,
 		Message:   wrapperResponse.Response,
 	})
 	req, _ = http.NewRequest("POST", service.AgentEndpoint, bytes.NewBuffer(jsonStr))
@@ -62,7 +65,7 @@ func sendMessage(message model.MessageSendRequest) error {
 	return nil
 }
 
-func parseAndSendMessage(message model.MessageInfo) error {
+func processUserMessage(message model.MessageInfo) error {
 	// 提交 Parser
 	jsonStr, _ := json.Marshal(message)
 	req, _ := http.NewRequest("POST", service.ParserEndpoint, bytes.NewBuffer(jsonStr))
@@ -132,13 +135,7 @@ func parseAndSendMessage(message model.MessageInfo) error {
 		messageReply.Message = append(messageReply.Message, pluginResponse.Message...)
 	}
 	if messageReply.IsReply || true {
-		err = sendMessage(model.MessageSendRequest{
-			MessageID: message.MessageID,
-			Agent:     message.Agent,
-			GroupID:   message.GroupID,
-			UserID:    message.UserID,
-			Message:   messageReply.Message,
-		})
+		err = wrapAndSendMessage(message, messageReply.Message)
 		if err != nil {
 			return err
 		}
@@ -155,7 +152,7 @@ func MessagePOST(c echo.Context) error {
 		return err
 	}
 
-	go parseAndSendMessage(message)
+	go processUserMessage(message)
 
 	return ResponseOK(c, "ok")
 }
@@ -169,7 +166,12 @@ func MessageSendPOST(c echo.Context) error {
 		return err
 	}
 
-	err = sendMessage(message)
+	err = wrapAndSendMessage(model.MessageInfo{
+		MessageID: message.MessageID,
+		Agent:     message.Agent,
+		GroupID:   message.GroupID,
+		UserID:    message.UserID,
+	}, message.Message)
 	if err != nil {
 		return ResponseInternalServerError(c, "Send message failed", err)
 	}
