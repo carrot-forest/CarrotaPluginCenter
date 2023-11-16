@@ -83,7 +83,7 @@ func Bind(c echo.Context, obj interface{}) (bool, error) {
 
 type Weather struct {
 	City     string `json:"city"`
-	DayDelta int    `json:"day_delta"`
+	DayDelta int    `json:"NumberOfDaysFromToday"`
 }
 
 type CityLookupLocation struct {
