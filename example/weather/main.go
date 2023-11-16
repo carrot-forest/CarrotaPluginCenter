@@ -254,7 +254,7 @@ func Register(pluginCenterEndpoint string, pluginEndpoint string) error {
 		ID:          "weather",
 		Name:        "天气预报",
 		Author:      "ligen131",
-		Description: "天气预报，所有",
+		Description: "天气查询：传入一个参数即地点，将返回这个地点的天气。如果你认为需要进行天气查询，但语句中没有给出地点，请传入“武汉”。",
 		Prompt:      "复读机",
 		Params: []PluginParam{
 			{
