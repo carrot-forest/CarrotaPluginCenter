@@ -17,14 +17,14 @@ import (
 func wrapAndSendMessage(originMessage model.MessageInfo, message []string) error {
 	// 提交 Wrapper
 	wrapperRequest := model.PostWrapperRequest{
-		Agent:          originMessage.Agent,
-		GroupID:        originMessage.GroupID,
-		GroupName:      originMessage.GroupName,
-		UserID:         originMessage.UserID,
-		UserName:       originMessage.UserName,
-		Time:           time.Now().Unix(),
-		Message:        originMessage.Message,
-		OriginResponse: message,
+		Agent:            originMessage.Agent,
+		GroupID:          originMessage.GroupID,
+		GroupName:        originMessage.GroupName,
+		UserID:           originMessage.UserID,
+		UserName:         originMessage.UserName,
+		Time:             time.Now().Unix(),
+		Message:          originMessage.Message,
+		OriginalResponse: message,
 	}
 	jsonStr, _ := json.Marshal(wrapperRequest)
 	req, _ := http.NewRequest("POST", service.WrapperEndpoint, bytes.NewBuffer(jsonStr))

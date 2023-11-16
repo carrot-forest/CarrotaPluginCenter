@@ -40,14 +40,14 @@ type PostPluginRequest struct {
 }
 
 type PostWrapperRequest struct {
-	Agent          string   `json:"agent"`
-	GroupID        string   `json:"group_id"`
-	GroupName      string   `json:"group_name"`
-	UserID         string   `json:"user_id"`
-	UserName       string   `json:"user_name"`
-	Time           int64    `json:"time"`
-	Message        string   `json:"message"`
-	OriginResponse []string `json:"origin_response"`
+	Agent            string   `json:"agent"`
+	GroupID          string   `json:"group_id"`
+	GroupName        string   `json:"group_name"`
+	UserID           string   `json:"user_id"`
+	UserName         string   `json:"user_name"`
+	Time             int64    `json:"time"`
+	Message          string   `json:"message"`
+	OriginalResponse []string `json:"original_response"`
 }
 
 type PostWrapperResponse struct {
