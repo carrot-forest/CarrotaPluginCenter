@@ -1,0 +1,15 @@
+server:
+    hostname: 0.0.0.0
+    port: 3439
+
+database:
+    hostname: localhost
+    port: 5432
+    user: postgres
+    password: password
+    dbName: carrota
+    sslMode: false
+    timeZone: Asia/Shanghai
+
+plugin-center-endpoint: "http://localhost:3435/api/v1"
+plugin-endpoint: "http://localhost:3439/" # 本插件 API 链接
