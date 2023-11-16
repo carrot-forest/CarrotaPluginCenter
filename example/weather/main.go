@@ -221,7 +221,7 @@ func process(c echo.Context) error {
 
 	weatherReply := weatherPredictResponse.Daily[dayDelta]
 	return c.JSON(http.StatusOK, MessageResponse{
-		IsReply: false,
+		IsReply: true,
 		Message: []string{
 			fmt.Sprintf("%s的天气情况如下：气温%s℃~%s℃，白天%s，风向%s，夜晚%s，风向%s",
 				weatherReply.FxDate, weatherReply.TempMin, weatherReply.TempMax,
