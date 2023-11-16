@@ -258,20 +258,20 @@ func Register(pluginCenterEndpoint string, pluginEndpoint string) error {
 		Prompt:      "复读机",
 		Params: []PluginParam{
 			{
-				Key:         "城市名",
+				Key:         "city",
 				Type:        "string",
 				Description: "城市名",
 			},
 			{
-				Key:         "距今天的天数",
+				Key:         "NumberOfDaysFromToday",
 				Type:        "int",
 				Description: "距今天的天数，如今天为0，明天为1，三天后为3",
 			},
 		},
 		Format: []string{
-			"${城市名}的天气怎么样",
-			"${距今天的天数}的天气怎么样",
-			"${距今天的天数}${城市名}的天气怎么样",
+			"${city}的天气怎么样",
+			"${NumberOfDaysFromToday}的天气怎么样",
+			"${NumberOfDaysFromToday}${city}的天气怎么样",
 		},
 		Example: []string{
 			"调用 武汉 0",
