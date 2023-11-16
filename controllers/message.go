@@ -146,6 +146,7 @@ func processUserMessage(message model.MessageInfo) error {
 			return err
 		}
 		resp.Body.Close()
+		logs.Debug("pluginResponse", zap.String("name", plugin.Name), zap.Any("pluginResponse", pluginResponse))
 
 		messageReply.IsReply = messageReply.IsReply || pluginResponse.IsReply
 		messageReply.Message = append(messageReply.Message, pluginResponse.Message...)
@@ -160,7 +161,7 @@ func processUserMessage(message model.MessageInfo) error {
 }
 
 func MessagePOST(c echo.Context) error {
-	logs.Debug("GET /message")
+	logs.Debug("POST /message")
 
 	message := model.MessageInfo{}
 	_ok, err := Bind(c, &message)
@@ -174,7 +175,7 @@ func MessagePOST(c echo.Context) error {
 }
 
 func MessageSendPOST(c echo.Context) error {
-	logs.Debug("GET /message")
+	logs.Debug("POST /message/send")
 
 	message := model.MessageSendRequest{}
 	_ok, err := Bind(c, &message)
