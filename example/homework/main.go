@@ -73,7 +73,7 @@ func Bind(c echo.Context, obj interface{}) (bool, error) {
 
 type HomeworkParam struct {
 	Subject       string `json:"subject"`
-	IsAddHomework bool   `json:"isAddHomework"`
+	IsAddHomework string `json:"isAddHomework"`
 	Content       string `json:"ContentAndDeadline"`
 }
 
@@ -108,7 +108,7 @@ func process(c echo.Context) error {
 	}
 
 	/*************** 插件处理逻辑 ***************/
-	if message.Param.IsAddHomework {
+	if message.Param.IsAddHomework == "True" || message.Param.IsAddHomework == "true" {
 		err := model.CreateHomeworkRecord(model.Homework{
 			Subject: message.Param.Subject,
 			Content: message.Param.Content,
@@ -172,7 +172,7 @@ func Register(pluginCenterEndpoint string, pluginEndpoint string) error {
 			},
 			{
 				Key:         "isAddHomework",
-				Type:        "bool",
+				Type:        "string",
 				Description: "语句是否有意图添加作业，或语句中是否包含“添加”",
 			},
 			{
