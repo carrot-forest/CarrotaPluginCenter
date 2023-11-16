@@ -118,10 +118,10 @@ func processUserMessage(message model.MessageInfo) error {
 			IsMention: message.IsMention,
 			Param:     parserPlugin.Param,
 		})
-		req, _ := http.NewRequest("POST", plugin.Url, bytes.NewBuffer(pluginStr))
-		req.Header.Set("Content-Type", "application/json")
 		var resp *http.Response
 		for i := 0; i < utils.FailedAttempts; i++ {
+			req, _ := http.NewRequest("POST", plugin.Url, bytes.NewBuffer(pluginStr))
+			req.Header.Set("Content-Type", "application/json")
 			client := &http.Client{}
 			resp, err = client.Do(req)
 			if err == nil && resp.StatusCode == 200 {
@@ -135,7 +135,7 @@ func processUserMessage(message model.MessageInfo) error {
 		}
 
 		if err != nil || resp.StatusCode != 200 {
-			model.DeletePluginById(plugin.ID)
+			// model.DeletePluginById(plugin.ID)
 			continue
 		}
 
