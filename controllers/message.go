@@ -32,7 +32,7 @@ func wrapAndSendMessage(originMessage model.MessageInfo, message []string) error
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil || resp.StatusCode != 200 {
-		logs.Error("POST Wrapper endpoint failed", zap.Error(err))
+		logs.Error("POST Wrapper endpoint failed", zap.Int("statusCode", resp.StatusCode), zap.Error(err))
 		return err
 	}
 
@@ -58,7 +58,7 @@ func wrapAndSendMessage(originMessage model.MessageInfo, message []string) error
 	client = &http.Client{}
 	resp, err = client.Do(req)
 	if err != nil || resp.StatusCode != 200 {
-		logs.Error("POST Agent endpoint failed", zap.Error(err))
+		logs.Error("POST Agent endpoint failed", zap.Int("statusCode", resp.StatusCode), zap.Error(err))
 		return err
 	}
 
@@ -73,7 +73,7 @@ func processUserMessage(message model.MessageInfo) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil || resp.StatusCode != 200 {
-		logs.Error("POST Parser endpoint failed", zap.Error(err))
+		logs.Error("POST Parser endpoint failed", zap.Int("statusCode", resp.StatusCode), zap.Error(err))
 		return err
 	}
 
@@ -119,7 +119,7 @@ func processUserMessage(message model.MessageInfo) error {
 
 		if err != nil || resp.StatusCode != 200 {
 			model.DeletePluginById(plugin.ID)
-			logs.Warn("POST Plugin endpoint failed", zap.String("name", plugin.Name), zap.String("url", plugin.Url), zap.Error(err))
+			logs.Warn("POST Plugin endpoint failed", zap.String("name", plugin.Name), zap.String("url", plugin.Url), zap.Int("statusCode", resp.StatusCode), zap.Error(err))
 			continue
 		}
 
