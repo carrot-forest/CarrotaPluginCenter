@@ -1,4 +1,4 @@
-module carrota-plugin-repeater
+module carrota-plugin-weather
 
 go 1.20
 
