@@ -74,7 +74,8 @@ func Bind(c echo.Context, obj interface{}) (bool, error) {
 type HomeworkParam struct {
 	Subject       string `json:"subject"`
 	IsAddHomework string `json:"isAddHomework"`
-	Content       string `json:"ContentAndDeadline"`
+	Content       string `json:"Content"`
+	Deadline      string `json:"Deadline"`
 }
 
 // Plugin Center 请求结构体
@@ -108,10 +109,11 @@ func process(c echo.Context) error {
 	}
 
 	/*************** 插件处理逻辑 ***************/
+	content := message.Param.Content + "，截止时间：" + message.Param.Deadline
 	if message.Param.IsAddHomework == "True" || message.Param.IsAddHomework == "true" {
 		err := model.CreateHomeworkRecord(model.Homework{
 			Subject: message.Param.Subject,
-			Content: message.Param.Content,
+			Content: content,
 		})
 		if err != nil {
 			logs.Logs.Error("Create homework record failed.", zap.Error(err))
@@ -122,7 +124,7 @@ func process(c echo.Context) error {
 		}
 		return c.JSON(http.StatusOK, MessageResponse{
 			IsReply: true,
-			Message: []string{"成功添加作业！作业科目：" + message.Param.Subject + "，作业内容：" + message.Param.Content},
+			Message: []string{"成功添加作业！作业科目：" + message.Param.Subject + "，作业内容：" + content},
 		})
 	}
 
@@ -162,7 +164,7 @@ func Register(pluginCenterEndpoint string, pluginEndpoint string) error {
 		ID:          "homework",
 		Name:        "作业查询",
 		Author:      "ligen131",
-		Description: "作业查询：传入一个参数即科目，将返回这个科目的截止日期，如果你认为需要进行截止日期查询，但语句中没有给出科目，请传入语文。传入第二个参数即语句是否有意图添加作业，或语句中是否包含“添加”。传入第三个参数即作业内容和截止时间。",
+		Description: "作业查询：传入一个参数即科目，将返回这个科目的截止日期，如果你认为需要进行截止日期查询，但语句中没有给出科目，请传入语文。传入第二个参数即语句是否有意图添加作业，或语句中是否包含“添加”。传入第三个参数即作业内容。传入第四个参数即截止时间。",
 		Prompt:      "作业查询",
 		Params: []PluginParam{
 			{
@@ -176,9 +178,14 @@ func Register(pluginCenterEndpoint string, pluginEndpoint string) error {
 				Description: "语句是否有意图添加作业，或语句中是否包含“添加”",
 			},
 			{
-				Key:         "ContentAndDeadline",
+				Key:         "Content",
 				Type:        "string",
-				Description: "作业内容和截止时间",
+				Description: "作业内容",
+			},
+			{
+				Key:         "Deadline",
+				Type:        "string",
+				Description: "截止时间",
 			},
 		},
 		Format: []string{
@@ -187,7 +194,7 @@ func Register(pluginCenterEndpoint string, pluginEndpoint string) error {
 			"${subject}作业截止时间",
 			"${subject}作业截止",
 			"${subject}作业什么时候交",
-			"添加语文作业，内容为800字作文，明天截止",
+			"添加${subject}作业，内容为${Content}，${Deadline}截止",
 		},
 		Example: []string{
 			"不调用",
