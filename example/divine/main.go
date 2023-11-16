@@ -123,7 +123,7 @@ func process(c echo.Context) error {
 	randomInt := rand.Intn(100) + 1
 	const (
 		CarrotDiceSuccessFullPoint = "！！100% 概率事件！！你就是命运之神本神！！卡洛要好好记录下来..."
-		CarrotDiceSuccessGold      = "占卜的结果是绝无可能失手！信心满满的往前走吧！"
+		CarrotDiceSuccessGold      = "占卜的结果是非常大概率！信心满满的往前走吧！"
 		CarrotDiceSuccessSilver    = "是很难避免的事情哦~愿命运之神与你同在"
 		CarrotDiceSuccessBronze    = "卡洛认为基本可以放轻松啦"
 		CarrotDiceFailedGold       = "卡洛只能看见命运的天平在不停的摇摆摇摆摇摆~"
