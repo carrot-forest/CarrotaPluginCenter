@@ -152,7 +152,7 @@ func DeletePluginById(id string) error {
 	m := GetModel()
 	defer m.Close()
 
-	result := m.tx.Delete(&Plugin{}).Where("id = ?", id)
+	result := m.tx.Where("id = ?", id).Delete(&Plugin{})
 	if result.Error != nil {
 		logs.Info("Delete plugin by id failed.", zap.Error(result.Error))
 		m.Abort()
