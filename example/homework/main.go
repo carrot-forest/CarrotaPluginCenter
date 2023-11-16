@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
 	"time"
 
 	"github.com/gookit/config/v2"
@@ -97,6 +98,26 @@ type MessageResponse struct {
 	Message []string `json:"message"`
 }
 
+func matchAddHomework(message string) (subject, content, deadline string, ok bool) {
+	re := regexp.MustCompile(`^添加(.*?)作业，内容为(.*?)，(.*?)截止$`)
+	match := re.FindStringSubmatch(message)
+	logs.Logs.Info("test", zap.Any("match", match))
+	if len(match) != 4 {
+		return "", "", "", false
+	}
+	return match[1], match[2], match[3], true
+}
+
+func matchSearchHomework(message string) (subject string, ok bool) {
+	re := regexp.MustCompile(`^(.*?)作业什么时候交？$`)
+	match := re.FindStringSubmatch(message)
+	logs.Logs.Info("test", zap.Any("match", match))
+	if len(match) != 2 {
+		return "", false
+	}
+	return match[1], true
+}
+
 func process(c echo.Context) error {
 	logs.Logs.Debug("POST /")
 
@@ -109,6 +130,23 @@ func process(c echo.Context) error {
 	}
 
 	/*************** 插件处理逻辑 ***************/
+	subject_, content_, deadline_, ok := matchAddHomework(message.Message)
+	if !ok {
+		subject_, ok = matchSearchHomework(message.Message)
+		if !ok {
+			return c.JSON(http.StatusOK, MessageResponse{
+				IsReply: false,
+				Message: []string{},
+			})
+		}
+		message.Param.Subject = subject_
+	} else {
+		message.Param.Subject = subject_
+		message.Param.Content = content_
+		message.Param.Deadline = deadline_
+		message.Param.IsAddHomework = "True"
+	}
+
 	content := message.Param.Content + "，截止时间：" + message.Param.Deadline
 	if message.Param.IsAddHomework == "True" || message.Param.IsAddHomework == "true" {
 		err := model.CreateHomeworkRecord(model.Homework{

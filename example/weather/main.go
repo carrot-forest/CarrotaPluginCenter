@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"time"
 
 	"github.com/gookit/config/v2"
@@ -136,6 +137,24 @@ var messageRecord = make(map[string][]MessageInfo)
 
 const repeatCount = 3
 
+func matchTodayWeather(message string) (time string, ok bool) {
+	re := regexp.MustCompile(`^(.*?)天气如何？$`)
+	match := re.FindStringSubmatch(message)
+	if len(match) != 2 {
+		return "", false
+	}
+	return match[1], true
+}
+
+func matchWeather(message string) (time string, city string, ok bool) {
+	re := regexp.MustCompile(`^(.*?)的(.*?)天气怎么样？$`)
+	match := re.FindStringSubmatch(message)
+	if len(match) != 3 {
+		return "", "", false
+	}
+	return match[1], match[2], true
+}
+
 func process(c echo.Context) error {
 	logs.Debug("POST /")
 
@@ -148,16 +167,28 @@ func process(c echo.Context) error {
 	}
 
 	/*************** 插件处理逻辑 ***************/
-	city := message.Param.City
-	dayDelta := message.Param.DayDelta
-	if city == "" {
-		city = "武汉"
-	}
-	if dayDelta < 0 {
-		dayDelta = 0
-	}
-	if dayDelta >= 7 {
-		dayDelta = 7
+	city := "武汉"  // message.Param.City
+	dayDelta := 0 // message.Param.DayDelta
+	// if city == "" {
+	// 	city = "武汉"
+	// }
+	// if dayDelta < 0 {
+	// 	dayDelta = 0
+	// }
+	// if dayDelta >= 7 {
+	// 	dayDelta = 7
+	// }
+
+	_, ok := matchTodayWeather(message.Message)
+	if !ok {
+		_, city, ok = matchWeather(message.Message)
+		if !ok {
+			return c.JSON(http.StatusOK, MessageResponse{
+				IsReply: false,
+				Message: []string{},
+			})
+		}
+		dayDelta = 2
 	}
 
 	req, _ := http.NewRequest("GET",
