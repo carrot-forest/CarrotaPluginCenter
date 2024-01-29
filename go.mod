@@ -9,7 +9,7 @@ require (
 	github.com/lib/pq v1.10.9
 	go.uber.org/zap v1.26.0
 	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.5
+	gorm.io/gorm v1.25.6
 )
 
 require (
