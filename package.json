@@ -8,6 +8,6 @@
     "commitlint-config-cz": "^0.13.3",
     "commitlint-config-git-commit-emoji": "^1.0.0",
     "cz-customizable": "^7.0.0",
-    "husky": "^8.0.3"
+    "husky": "^9.0.6"
   }
 }
